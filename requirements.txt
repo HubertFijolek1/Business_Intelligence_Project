@@ -1,0 +1,10 @@
+pandas
+sqlalchemy
+streamlit
+plotly
+streamlit-authenticator
+pyyaml
+jupyter
+scikit-learn
+matplotlib
+seaborn
