@@ -1,5 +1,18 @@
 import pandas as pd
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_host = os.getenv('DB_HOST')
+db_port = os.getenv('DB_PORT')
+db_name = os.getenv('DB_NAME')
+
+engine = create_engine(f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
+
 
 def clean_sales_data(df):
     df.dropna(subset=['order_id', 'customer_id', 'product_id', 'quantity', 'total_price'], inplace=True)
@@ -30,7 +43,7 @@ def feature_engineering_sales(df):
 
 
 if __name__ == "__main__":
-    engine = create_engine('postgresql://bi_user:secure_password@localhost:5432/bi_ecommerce')
+    engine = create_engine(f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
 
     sales = pd.read_csv('data/raw/sales.csv')
     customers = pd.read_csv('data/raw/customers.csv')
