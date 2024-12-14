@@ -1,0 +1,6 @@
+product_id,product_name,category,price,stock
+P001,Wireless Mouse,Electronics,24.99,150
+P002,Gaming Keyboard,Electronics,19.99,80
+P003,Noise-Cancelling Headphones,Audio,39.99,60
+P004,USB-C Charger,Accessories,19.99,200
+P005,Portable SSD 1TB,Storage,59.99,100
