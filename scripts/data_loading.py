@@ -30,7 +30,6 @@ def load_marketing_data(engine):
     query = "SELECT * FROM marketing"
     return pd.read_sql(query, engine)
 
-
 if __name__ == "__main__":
     try:
         engine = create_engine(f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
