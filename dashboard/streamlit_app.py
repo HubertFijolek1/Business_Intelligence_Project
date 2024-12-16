@@ -40,6 +40,26 @@ elif page == "Reports":
     fig = px.pie(segment_distribution, names='Segment', values='Count', title="Customer Segmentation")
     st.plotly_chart(fig)
 
+    st.header("Product Performance")
+    st.write("Product Performance by Revenue and Quantity Sold")
+
+    # Load cleaned product and sales data
+    product_data = pd.read_csv("data/cleaned/products_cleaned.csv")
+    sales_with_products = sales_data.merge(product_data, on='product_id')
+
+    product_performance = sales_with_products.groupby('product_name').agg(
+        total_revenue=('total_price', 'sum'),
+        total_quantity=('quantity', 'sum')
+    ).reset_index()
+
+    # Bar chart for revenue
+    fig_revenue = px.bar(product_performance, x='product_name', y='total_revenue', title="Product Revenue")
+    st.plotly_chart(fig_revenue)
+
+    # Bar chart for quantity sold
+    fig_quantity = px.bar(product_performance, x='product_name', y='total_quantity', title="Product Quantity Sold")
+    st.plotly_chart(fig_quantity)
+
 elif page == "KPIs":
     st.header("Key Performance Indicators (KPIs)")
     st.write("KPI metrics will be displayed here.")
