@@ -1,6 +1,20 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from sqlalchemy import create_engine
+import kpi_calculations  # Import KPI calculation functions
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_host = os.getenv('DB_HOST')
+db_port = os.getenv('DB_PORT')
+db_name = os.getenv('DB_NAME')
+
+engine = create_engine(f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
 
 st.title("E-commerce BI Dashboard")
 
@@ -60,6 +74,18 @@ elif page == "Reports":
     fig_quantity = px.bar(product_performance, x='product_name', y='total_quantity', title="Product Quantity Sold")
     st.plotly_chart(fig_quantity)
 
+# KPIs Page
 elif page == "KPIs":
     st.header("Key Performance Indicators (KPIs)")
-    st.write("KPI metrics will be displayed here.")
+    st.write("Live KPI Metrics Summary")
+
+    # Calculate KPIs using imported functions
+    kpis = kpi_calculations.calculate_all_kpis(engine)
+
+    # Display KPIs with st.metric
+    st.metric("Customer Acquisition Cost (CAC)", f"${kpis['Customer Acquisition Cost (CAC)']:.2f}")
+    st.metric("Customer Lifetime Value (CLV)", f"${kpis['Customer Lifetime Value (CLV)']:.2f}")
+    st.metric("Conversion Rate (%)", f"{kpis['Conversion Rate (%)']:.2f}")
+    st.metric("Sales Growth Rate (%)", f"{kpis['Sales Growth Rate (%)']:.2f}")
+    st.metric("Average Order Value (AOV)", f"${kpis['Average Order Value (AOV)']:.2f}")
+
