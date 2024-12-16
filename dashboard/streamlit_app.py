@@ -1,4 +1,6 @@
 import streamlit as st
+import pandas as pd
+import plotly.express as px
 
 st.title("E-commerce BI Dashboard")
 
@@ -10,8 +12,21 @@ if page == "Home":
     st.write("Overview of key metrics and insights.")
 
 elif page == "Reports":
-    st.header("Reports")
-    st.write("Detailed reports will be displayed here.")
+    st.header("Sales Trends")
+    st.write("Monthly Sales Trends Visualization")
+
+    # Load cleaned sales data
+    sales_data = pd.read_csv("data/cleaned/sales_cleaned.csv")
+    sales_data['order_date'] = pd.to_datetime(sales_data['order_date'])
+    sales_data['month'] = sales_data['order_date'].dt.to_period("M").astype(str)
+    monthly_sales = sales_data.groupby('month')['total_price'].sum().reset_index()
+
+    # Line chart for sales trends
+    fig = px.line(monthly_sales, x='month', y='total_price', title="Monthly Sales Trends", labels={
+        "month": "Month",
+        "total_price": "Total Sales ($)"
+    })
+    st.plotly_chart(fig)
 
 elif page == "KPIs":
     st.header("Key Performance Indicators (KPIs)")
