@@ -28,6 +28,18 @@ elif page == "Reports":
     })
     st.plotly_chart(fig)
 
+    st.header("Customer Segmentation")
+    st.write("Customer Segments: Premium, Standard, Basic")
+
+    # Load cleaned customer data
+    customer_data = pd.read_csv("data/cleaned/customers_cleaned.csv")
+    segment_distribution = customer_data['segment'].value_counts().reset_index()
+    segment_distribution.columns = ['Segment', 'Count']
+
+    # Pie chart for customer segments
+    fig = px.pie(segment_distribution, names='Segment', values='Count', title="Customer Segmentation")
+    st.plotly_chart(fig)
+
 elif page == "KPIs":
     st.header("Key Performance Indicators (KPIs)")
     st.write("KPI metrics will be displayed here.")
