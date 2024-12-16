@@ -13,6 +13,10 @@ NUM_PRODUCTS = 5
 NUM_SALES = 200
 NUM_MARKETING_CAMPAIGNS = 20
 
+# Determine the script's directory
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_RAW_DIR = os.path.join(SCRIPT_DIR, '..', 'data', 'raw')
+
 # Product Details
 PRODUCTS = [
     {"product_id": f"P{str(i).zfill(3)}", "product_name": name, "category": category, "price": price, "stock": stock}
@@ -97,20 +101,21 @@ def generate_sales(num_sales, customers, products):
 
 # Generate Marketing Campaigns
 def generate_marketing_campaigns(num_campaigns):
-    campaign_names = ["Spring Sale", "Summer Promotion", "Black Friday", "Holiday Discounts", "New Year Blast",
-                      "Cyber Monday", "Back to School", "Winter Clearance", "Flash Sale", "Exclusive Offer"]
+    campaign_names = [
+        "Spring Sale", "Summer Promotion", "Black Friday", "Holiday Discounts",
+        "New Year Blast", "Cyber Monday", "Back to School", "Winter Clearance",
+        "Flash Sale", "Exclusive Offer"
+    ]
     campaigns = []
     for i in range(1, num_campaigns + 1):
         campaign_id = f"M{str(i).zfill(3)}"
         campaign_name = random.choice(campaign_names)
         spend = round(random.uniform(1000.0, 20000.0), 2)
-        # Assume conversions are correlated with spend
         conversions = int(spend / random.uniform(20.0, 50.0))
+        impressions = random.randint(10000, 100000)  # Added impressions
         start_date = fake.date_between(start_date='-1y', end_date='today')
-        # Campaign duration between 7 to 30 days
         duration = random.randint(7, 30)
         end_date = start_date + timedelta(days=duration)
-        # Ensure end_date does not exceed '2025-01-31'
         if end_date > datetime.strptime('2025-01-31', '%Y-%m-%d').date():
             end_date = datetime.strptime('2025-01-31', '%Y-%m-%d').date()
 
@@ -119,39 +124,45 @@ def generate_marketing_campaigns(num_campaigns):
             "campaign_name": campaign_name,
             "spend": spend,
             "conversions": conversions,
+            "impressions": impressions,  # Included impressions
             "start_date": start_date.strftime('%Y-%m-%d'),
             "end_date": end_date.strftime('%Y-%m-%d')
         })
     return pd.DataFrame(campaigns)
 
 
+
 def main():
     # Create raw directory if it doesn't exist
-    os.makedirs('../data/raw', exist_ok=True)
+    os.makedirs(DATA_RAW_DIR, exist_ok=True)
 
     # Generate and save customers
     print("Generating customers...")
     customers_df = generate_customers(NUM_CUSTOMERS)
-    customers_df.to_csv('../data/raw/customers.csv', index=False)
-    print("customers.csv generated with 200 rows.")
+    customers_csv_path = os.path.join(DATA_RAW_DIR, 'customers.csv')
+    customers_df.to_csv(customers_csv_path, index=False)
+    print(f"customers.csv generated with {len(customers_df)} rows at {customers_csv_path}.")
 
     # Generate and save sales
     print("Generating sales...")
     sales_df = generate_sales(NUM_SALES, customers_df, PRODUCTS)
-    sales_df.to_csv('../data/raw/sales.csv', index=False)
-    print("sales.csv generated with 200 rows.")
+    sales_csv_path = os.path.join(DATA_RAW_DIR, 'sales.csv')
+    sales_df.to_csv(sales_csv_path, index=False)
+    print(f"sales.csv generated with {len(sales_df)} rows at {sales_csv_path}.")
 
     # Generate and save products
     print("Generating products...")
     products_df = pd.DataFrame(PRODUCTS)
-    products_df.to_csv('../data/raw/products.csv', index=False)
-    print("products.csv generated with 5 products.")
+    products_csv_path = os.path.join(DATA_RAW_DIR, 'products.csv')
+    products_df.to_csv(products_csv_path, index=False)
+    print(f"products.csv generated with {len(products_df)} products at {products_csv_path}.")
 
     # Generate and save marketing campaigns
     print("Generating marketing campaigns...")
     marketing_df = generate_marketing_campaigns(NUM_MARKETING_CAMPAIGNS)
-    marketing_df.to_csv('../data/raw/marketing.csv', index=False)
-    print("marketing.csv generated with 20 campaigns.")
+    marketing_csv_path = os.path.join(DATA_RAW_DIR, 'marketing.csv')
+    marketing_df.to_csv(marketing_csv_path, index=False)
+    print(f"marketing.csv generated with {len(marketing_df)} campaigns at {marketing_csv_path}.")
 
 
 if __name__ == "__main__":

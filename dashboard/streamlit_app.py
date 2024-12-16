@@ -2,9 +2,13 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from sqlalchemy import create_engine
-import kpi_calculations
 from dotenv import load_dotenv
 import os
+import sys
+
+# Add the scripts directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "scripts")))
+import kpi_calculations
 
 # Load environment variables
 load_dotenv()
@@ -19,16 +23,16 @@ engine = create_engine(f'postgresql://{db_user}:{db_password}@{db_host}:{db_port
 
 st.title("E-commerce BI Dashboard")
 
-st.sidebar.title("Navigation")
-page = st.sidebar.selectbox("Select Page", ["Home", "Reports", "KPIs"])
+tabs = st.tabs(["Home", "Reports", "KPIs"])
+
 
 # Home Page
-if page == "Home":
+with tabs[0]:
     st.header("Welcome to the E-commerce BI Dashboard")
     st.write("Overview of key metrics and insights.")
 
 # Reports Page
-elif page == "Reports":
+with tabs[1]:
     st.header("Sales Trends and Customer Segments")
 
     # Load cleaned sales data
@@ -93,8 +97,38 @@ elif page == "Reports":
     fig_quantity = px.bar(product_performance, x='product_name', y='total_quantity', title="Product Quantity Sold")
     st.plotly_chart(fig_quantity)
 
+    st.header("Campaign ROI Analysis")
+
+    # Load cleaned marketing data
+    marketing_data = pd.read_csv("data/cleaned/marketing_cleaned.csv")
+    marketing_data['start_date'] = pd.to_datetime(marketing_data['start_date'])
+    marketing_data['end_date'] = pd.to_datetime(marketing_data['end_date'])
+
+    # Calculate ROI (Return on Investment)
+    marketing_data['ROI'] = (marketing_data['conversions'] / marketing_data[
+        'spend']) * 100  # ROI as conversions per $ spent
+
+    # Scatter Plot: Spend vs Conversions
+    st.subheader("Campaign Spend vs. Conversions")
+    fig_roi = px.scatter(
+        marketing_data,
+        x='spend',
+        y='conversions',
+        color='campaign_name',
+        size='impressions',
+        hover_data=['campaign_id', 'ROI'],
+        title="Campaign Spend vs. Conversions",
+        labels={
+            "spend": "Spend ($)",
+            "conversions": "Conversions",
+            "impressions": "Impressions",
+            "campaign_name": "Campaign Name"
+        }
+    )
+    fig_roi.update_traces(marker=dict(opacity=0.7, line=dict(width=1, color='DarkSlateGrey')))
+    st.plotly_chart(fig_roi)
 # KPIs Page
-elif page == "KPIs":
+with tabs[2]:
     st.header("Key Performance Indicators (KPIs)")
     st.write("Live KPI Metrics Summary")
 

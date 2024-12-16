@@ -21,7 +21,7 @@ def calculate_clv(engine):
     return clv
 
 def calculate_conversion_rate(engine):
-    total_clicks = pd.read_sql("SELECT SUM(clicks) AS total_clicks FROM marketing", engine).iloc[0]['total_clicks']
+    total_clicks = pd.read_sql("SELECT SUM(impressions) AS total_clicks FROM marketing", engine).iloc[0]['total_clicks']
     total_conversions = pd.read_sql("SELECT SUM(conversions) AS total_conversions FROM marketing", engine).iloc[0]['total_conversions']
     conversion_rate = (total_conversions / total_clicks) * 100 if total_clicks else 0
     return conversion_rate

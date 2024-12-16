@@ -32,7 +32,7 @@ def clean_product_data(df):
 
 
 def clean_marketing_data(df):
-    df.dropna(subset=['campaign_id', 'campaign_name', 'spend', 'conversions'], inplace=True)
+    df.dropna(subset=['campaign_id', 'campaign_name', 'spend', 'conversions', 'impressions'], inplace=True)
     return df
 
 
