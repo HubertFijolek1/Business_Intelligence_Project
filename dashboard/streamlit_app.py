@@ -127,6 +127,29 @@ with tabs[1]:
     )
     fig_roi.update_traces(marker=dict(opacity=0.7, line=dict(width=1, color='DarkSlateGrey')))
     st.plotly_chart(fig_roi)
+
+    st.header("Campaign Drill-Down Reports")
+
+    # Select Campaign for Drill-Down
+    selected_campaign = st.selectbox("Select a Campaign for Detailed Insights",
+                                     options=marketing_data['campaign_name'].unique())
+
+    if selected_campaign:
+        campaign_details = marketing_data[marketing_data['campaign_name'] == selected_campaign]
+        st.write("#### Campaign Details")
+        st.write(campaign_details)
+
+        # Load or create sales_marketing mapping
+        try:
+            sales_marketing = pd.read_csv("data/cleaned/sales_marketing.csv")
+            related_order_ids = sales_marketing[sales_marketing['campaign_name'] == selected_campaign]['order_id']
+            related_sales = filtered_sales[filtered_sales['order_id'].isin(related_order_ids)]
+            st.write("#### Sales Related to Selected Campaign")
+            st.write(related_sales)
+        except FileNotFoundError:
+            st.warning("Sales-Marketing mapping file not found. Drill-down for campaigns is disabled.")
+        except Exception as e:
+            st.error(f"Error loading sales-marketing mapping: {e}")
 # KPIs Page
 with tabs[2]:
     st.header("Key Performance Indicators (KPIs)")
