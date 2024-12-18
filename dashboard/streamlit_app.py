@@ -6,6 +6,14 @@ from filters import apply_filters
 import kpi_calculations
 from data_loading import load_sales_data, load_customer_data, load_product_data, load_marketing_data
 import plotly.express as px
+from charts import (
+    monthly_sales_trend_chart,
+    campaign_spend_vs_conversions,
+    customer_segments_pie,
+    product_revenue_bar,
+    product_quantity_bar,
+    sales_growth_over_time_chart
+)
 
 engine = get_engine()
 
