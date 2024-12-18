@@ -1,3 +1,7 @@
+"""
+This module handles the creation of a SQLAlchemy engine from environment variables.
+Call get_engine() to get a connected engine.
+"""
 import os
 from sqlalchemy import create_engine
 from dotenv import load_dotenv

@@ -1,3 +1,6 @@
+"""
+This module contains functions to filter the sales data based on user selections.
+"""
 import pandas as pd
 
 def apply_filters(sales_df, product_df, customer_df, marketing_df,
