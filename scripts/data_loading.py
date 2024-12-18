@@ -1,34 +1,43 @@
 import pandas as pd
-from sqlalchemy import create_engine
-from dotenv import load_dotenv
-import os
+from database import get_engine
 
-load_dotenv()
+engine = get_engine()
 
-db_user = os.getenv('DB_USER')
-db_password = os.getenv('DB_PASSWORD')
-db_host = os.getenv('DB_HOST')
-db_port = os.getenv('DB_PORT')
-db_name = os.getenv('DB_NAME')
+def load_sales_data(start_date=None, end_date=None, product_ids=None, customer_ids=None):
+    query = "SELECT * FROM sales WHERE 1=1"
+    if start_date and end_date:
+        query += f" AND order_date BETWEEN '{start_date}' AND '{end_date}'"
+    if product_ids:
+        products_list = ",".join(f"'{p}'" for p in product_ids)
+        query += f" AND product_id IN ({products_list})"
+    if customer_ids:
+        cust_list = ",".join(f"'{c}'" for c in customer_ids)
+        query += f" AND customer_id IN ({cust_list})"
+    df = pd.read_sql(query, engine)
+    df['order_date'] = pd.to_datetime(df['order_date'])
+    return df
 
-def load_sales_data(engine):
-    query = "SELECT * FROM sales"
-    return pd.read_sql(query, engine)
+def load_customer_data():
+    df = pd.read_sql("SELECT * FROM customers", engine)
+    if 'signup_date' in df.columns:
+        df['signup_date'] = pd.to_datetime(df['signup_date'])
+    if 'last_order_date' in df.columns:
+        df['last_order_date'] = pd.to_datetime(df['last_order_date'])
+    return df
 
+def load_product_data():
+    df = pd.read_sql("SELECT * FROM products", engine)
+    return df
 
-def load_customer_data(engine):
-    query = "SELECT * FROM customers"
-    return pd.read_sql(query, engine)
-
-
-def load_product_data(engine):
-    query = "SELECT * FROM products"
-    return pd.read_sql(query, engine)
-
-
-def load_marketing_data(engine):
-    query = "SELECT * FROM marketing"
-    return pd.read_sql(query, engine)
+def load_marketing_data():
+    df = pd.read_sql("SELECT * FROM marketing", engine)
+    if 'start_date' in df.columns:
+        df['start_date'] = pd.to_datetime(df['start_date'])
+    if 'end_date' in df.columns:
+        df['end_date'] = pd.to_datetime(df['end_date'])
+    if 'spend' in df.columns and 'conversions' in df.columns and df['spend'].notnull().all():
+        df['ROI'] = (df['conversions'] / df['spend']) * 100.0
+    return df
 
 if __name__ == "__main__":
     try:

@@ -4,21 +4,28 @@ import plotly.express as px
 from dotenv import load_dotenv
 import os
 import sys
-from database import get_engine
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "scripts")))
+
+from database import get_engine
+from data_loading import load_customer_data, load_product_data, load_marketing_data, load_sales_data
 import kpi_calculations
 
 load_dotenv()
 
 engine = get_engine()
 
+customers = load_customer_data()
+products = load_product_data()
+marketing = load_marketing_data()
+
+product_options = ['All'] + products['product_name'].unique().tolist()
+segment_options = ['All'] + customers['segment'].unique().tolist()
+campaign_options = ['All'] + marketing['campaign_name'].unique().tolist()
+
 st.set_page_config(layout="wide")
 st.title("E-commerce BI Dashboard")
 
 tabs = st.tabs(["Home", "Reports", "KPIs"])
-
-# Home Page
 with tabs[0]:
     st.header("Welcome to the E-commerce BI Dashboard")
     st.write("Overview of key metrics and insights.")
