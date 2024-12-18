@@ -1,29 +1,29 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-from dotenv import load_dotenv
-import os
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "scripts")))
-
+from streamlit.cache_data import cache_data
 from database import get_engine
-from data_loading import load_customer_data, load_product_data, load_marketing_data, load_sales_data
+from filters import apply_filters
 import kpi_calculations
-
-load_dotenv()
+from data_loading import load_sales_data, load_customer_data, load_product_data, load_marketing_data
+import plotly.express as px
 
 engine = get_engine()
 
-customers = load_customer_data()
-products = load_product_data()
-marketing = load_marketing_data()
+st.set_page_config(layout="wide")
+st.title("E-commerce BI Dashboard")
+
+@cache_data
+def get_base_data():
+    customers = load_customer_data()
+    products = load_product_data()
+    marketing = load_marketing_data()
+    return customers, products, marketing
+
+customers, products, marketing = get_base_data()
 
 product_options = ['All'] + products['product_name'].unique().tolist()
 segment_options = ['All'] + customers['segment'].unique().tolist()
 campaign_options = ['All'] + marketing['campaign_name'].unique().tolist()
-
-st.set_page_config(layout="wide")
-st.title("E-commerce BI Dashboard")
 
 tabs = st.tabs(["Home", "Reports", "KPIs"])
 with tabs[0]:
