@@ -1,27 +1,19 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
 import sys
+from database import get_engine
 
-# Add the scripts directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "scripts")))
 import kpi_calculations
 
-# Load environment variables
 load_dotenv()
 
-db_user = os.getenv('DB_USER')
-db_password = os.getenv('DB_PASSWORD')
-db_host = os.getenv('DB_HOST')
-db_port = os.getenv('DB_PORT')
-db_name = os.getenv('DB_NAME')
+engine = get_engine()
 
-engine = create_engine(f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
-
-st.set_page_config(layout="wide")  # Optimize layout for wide screens
+st.set_page_config(layout="wide")
 st.title("E-commerce BI Dashboard")
 
 tabs = st.tabs(["Home", "Reports", "KPIs"])
