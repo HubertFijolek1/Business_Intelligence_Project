@@ -2,6 +2,8 @@ import pandas as pd
 from sqlalchemy import create_engine
 from database import get_engine
 from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 
 def get_monthly_sales_prediction(engine):
@@ -34,10 +36,12 @@ def get_monthly_sales_prediction(engine):
     X = df[['monthly_spend']]
     y = df['monthly_sales']
 
-    # Simple linear regression
-    model = LinearRegression()
-    model.fit(X, y)
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('regressor', LinearRegression())
+    ])
 
-    # Predict on the same data (for demonstration)
-    df['predicted_sales'] = model.predict(X)
+    pipeline.fit(X, y)
+    df['predicted_sales'] = pipeline.predict(X)
+
     return df[['month', 'monthly_spend', 'monthly_sales', 'predicted_sales']]
