@@ -1,13 +1,13 @@
 import pandas as pd
-from sqlalchemy import create_engine
 from database import get_engine
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import mean_squared_error, make_scorer
 import numpy as np
 
 def get_monthly_sales_prediction(engine):
-    # Query monthly aggregated sales and marketing spend
     query = """
     WITH monthly_sales AS (
         SELECT 
@@ -32,7 +32,6 @@ def get_monthly_sales_prediction(engine):
     df['month'] = pd.to_datetime(df['month'])
     df.sort_values('month', inplace=True)
 
-    # Prepare features and target
     X = df[['monthly_spend']]
     y = df['monthly_sales']
 
@@ -41,7 +40,12 @@ def get_monthly_sales_prediction(engine):
         ('regressor', LinearRegression())
     ])
 
+    mse_scorer = make_scorer(mean_squared_error, greater_is_better=False)
+    scores = cross_val_score(pipeline, X, y, scoring=mse_scorer, cv=3)
+    rmse_scores = [np.sqrt(-s) for s in scores]
+    cv_rmse = np.mean(rmse_scores)
+
     pipeline.fit(X, y)
     df['predicted_sales'] = pipeline.predict(X)
 
-    return df[['month', 'monthly_spend', 'monthly_sales', 'predicted_sales']]
+    return df[['month', 'monthly_spend', 'monthly_sales', 'predicted_sales']], cv_rmse

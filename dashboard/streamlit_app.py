@@ -13,6 +13,7 @@ from charts import (
     product_quantity_bar,
     sales_growth_over_time_chart
 )
+from predictive_analysis import get_monthly_sales_prediction
 
 engine = get_engine()
 
@@ -32,9 +33,8 @@ product_options = ['All'] + products['product_name'].unique().tolist()
 segment_options = ['All'] + customers['segment'].unique().tolist()
 campaign_options = ['All'] + marketing['campaign_name'].unique().tolist()
 
-tabs = st.tabs(["Home", "Reports", "KPIs"])
+tabs = st.tabs(["Home", "Reports", "KPIs", "Predictive Analysis"])
 
-# Home Page
 with tabs[0]:
     st.header("Welcome to the E-commerce BI Dashboard!")
     st.write("This dashboard provides key insights from our e-commerce data.")
@@ -194,7 +194,8 @@ with tabs[2]:
 
 with tabs[3]:
     st.header("Predictive Analysis")
-    st.write("Predict monthly sales based on marketing spend using a basic Linear Regression model.")
-    prediction_df = get_monthly_sales_prediction(engine)
-    st.write("### Model Predictions")
+    st.write("Predict monthly sales based on marketing spend using a pipeline and evaluate via cross-validation.")
+    prediction_df, cv_score = get_monthly_sales_prediction(engine)  # Now returns cv_score too
+    st.write("### Model Predictions and Performance")
+    st.write("Cross-Validation RMSE:", cv_score)
     st.dataframe(prediction_df)
