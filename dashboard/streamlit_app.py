@@ -193,9 +193,9 @@ with tabs[2]:
     st.plotly_chart(fig_growth, use_container_width=True)
 
 with tabs[3]:
-    st.header("Predictive Analysis")
-    st.write("Predict monthly sales based on marketing spend using a pipeline and evaluate via cross-validation.")
-    prediction_df, cv_score = get_monthly_sales_prediction(engine)  # Now returns cv_score too
-    st.write("### Model Predictions and Performance")
+    st.header("Predictive Analysis (Hyperparameter Tuning)")
+    st.write("We've added polynomial features and tuned them using GridSearchCV.")
+    prediction_df, cv_score, best_params = get_monthly_sales_prediction(engine)
+    st.write("### Best Model Parameters:", best_params)
     st.write("Cross-Validation RMSE:", cv_score)
     st.dataframe(prediction_df)

@@ -2,8 +2,8 @@ import pandas as pd
 from database import get_engine
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
+from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error, make_scorer
 import numpy as np
 
@@ -37,15 +37,22 @@ def get_monthly_sales_prediction(engine):
 
     pipeline = Pipeline([
         ('scaler', StandardScaler()),
+        ('poly', PolynomialFeatures()),
         ('regressor', LinearRegression())
     ])
 
+    param_grid = {
+        'poly__degree': [1, 2, 3]
+    }
+
     mse_scorer = make_scorer(mean_squared_error, greater_is_better=False)
-    scores = cross_val_score(pipeline, X, y, scoring=mse_scorer, cv=3)
-    rmse_scores = [np.sqrt(-s) for s in scores]
-    cv_rmse = np.mean(rmse_scores)
+    grid_search = GridSearchCV(pipeline, param_grid, scoring=mse_scorer, cv=3)
+    grid_search.fit(X, y)
 
-    pipeline.fit(X, y)
-    df['predicted_sales'] = pipeline.predict(X)
+    best_model = grid_search.best_estimator_
+    y_pred = best_model.predict(X)
 
-    return df[['month', 'monthly_spend', 'monthly_sales', 'predicted_sales']], cv_rmse
+    rmse = np.sqrt(mean_squared_error(y, y_pred))
+
+    df['predicted_sales'] = y_pred
+    return df[['month', 'monthly_spend', 'monthly_sales', 'predicted_sales']], rmse, grid_search.best_params_
