@@ -191,3 +191,10 @@ with tabs[2]:
     sales_growth_data['year_month'] = sales_growth_data.apply(lambda row: f"{int(row['year'])}-{int(row['month']):02d}", axis=1)
     fig_growth = sales_growth_over_time_chart(sales_growth_data)
     st.plotly_chart(fig_growth, use_container_width=True)
+
+with tabs[3]:
+    st.header("Predictive Analysis")
+    st.write("Predict monthly sales based on marketing spend using a basic Linear Regression model.")
+    prediction_df = get_monthly_sales_prediction(engine)
+    st.write("### Model Predictions")
+    st.dataframe(prediction_df)
