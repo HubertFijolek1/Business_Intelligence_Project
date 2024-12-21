@@ -3,7 +3,7 @@ This module provides functions to load data from the database.
 For performance, consider indexing frequently filtered columns in the DB.
 """
 import pandas as pd
-from database import get_engine
+from scripts.database import get_engine
 
 engine = get_engine()
 

@@ -1,11 +1,16 @@
+import os
+import sys
+sys.path.insert(
+    0,
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
 import streamlit as st
 import pandas as pd
-from streamlit.cache_data import cache_data
-from database import get_engine
-from filters import apply_filters
-import kpi_calculations
-from data_loading import load_sales_data, load_customer_data, load_product_data, load_marketing_data
-from charts import (
+from scripts.database import get_engine
+from scripts.filters import apply_filters
+from scripts import kpi_calculations
+from scripts.data_loading import load_sales_data, load_customer_data, load_product_data, load_marketing_data
+from scripts.charts import (
     monthly_sales_trend_chart,
     campaign_spend_vs_conversions,
     customer_segments_pie,
@@ -13,14 +18,12 @@ from charts import (
     product_quantity_bar,
     sales_growth_over_time_chart
 )
-from predictive_analysis import get_monthly_sales_prediction
+from scripts.predictive_analysis import get_monthly_sales_prediction
 
 engine = get_engine()
-
 st.set_page_config(layout="wide")
 st.title("E-commerce BI Dashboard")
 
-@cache_data
 def get_base_data():
     customers = load_customer_data()
     products = load_product_data()
@@ -77,12 +80,12 @@ with tabs[1]:
             with report_columns[0]:
                 st.subheader("Monthly Sales Trends")
                 fig_sales = monthly_sales_trend_chart(filtered_sales, start_date, end_date)
-                st.plotly_chart(fig_sales, use_container_width=True)
+                st.plotly_chart(fig_sales, use_container_width=True, key="sales_trend_chart")
 
             with report_columns[1]:
                 st.subheader("Campaign Spend vs. Conversions")
                 fig_roi = campaign_spend_vs_conversions(marketing)
-                st.plotly_chart(fig_roi, use_container_width=True)
+                st.plotly_chart(fig_roi, use_container_width=True, key="roi_chart_1")
 
             # Customer Segmentation
             st.header("Customer Segmentation")
@@ -141,26 +144,26 @@ with tabs[1]:
             st.header("Campaign ROI Analysis")
             st.subheader("Campaign Spend vs. Conversions")
             fig_roi_analysis = campaign_spend_vs_conversions(marketing)
-            st.plotly_chart(fig_roi_analysis, use_container_width=True)
+            st.plotly_chart(fig_roi_analysis, use_container_width=True, key="roi_analysis_chart_2")
 
-            # Campaign Drill-Down Reports
-            st.header("Campaign Drill-Down Reports")
-            selected_campaign_drill = st.selectbox(
-                "Select a Campaign for Detailed Insights",
-                options=marketing['campaign_name'].unique()
-            )
-            if selected_campaign_drill:
-                campaign_details_drill = marketing[marketing['campaign_name'] == selected_campaign_drill]
-                st.write("#### Campaign Details")
-                st.write(campaign_details_drill)
-                try:
-                    sales_marketing = pd.read_csv("data/cleaned/sales_marketing.csv")
-                    related_order_ids_drill = sales_marketing[sales_marketing['campaign_name'] == selected_campaign_drill]['order_id']
-                    related_sales_drill = filtered_sales[filtered_sales['order_id'].isin(related_order_ids_drill)]
-                    st.write("#### Sales Related to Selected Campaign")
-                    st.write(related_sales_drill)
-                except FileNotFoundError:
-                    st.warning("Sales-Marketing mapping file not found. Drill-down for campaigns is disabled.")
+            # # Campaign Drill-Down Reports
+            # st.header("Campaign Drill-Down Reports")
+            # selected_campaign_drill = st.selectbox(
+            #     "Select a Campaign for Detailed Insights",
+            #     options=marketing['campaign_name'].unique()
+            # )
+            # if selected_campaign_drill:
+            #     campaign_details_drill = marketing[marketing['campaign_name'] == selected_campaign_drill]
+            #     st.write("#### Campaign Details")
+            #     st.write(campaign_details_drill)
+            #     try:
+            #         sales_marketing = pd.read_csv("data/cleaned/sales_marketing.csv")
+            #         related_order_ids_drill = sales_marketing[sales_marketing['campaign_name'] == selected_campaign_drill]['order_id']
+            #         related_sales_drill = filtered_sales[filtered_sales['order_id'].isin(related_order_ids_drill)]
+            #         st.write("#### Sales Related to Selected Campaign")
+            #         st.write(related_sales_drill)
+            #     except FileNotFoundError:
+            #         st.warning("Sales-Marketing mapping file not found. Drill-down for campaigns is disabled.")
 
 # KPIs Page
 with tabs[2]:

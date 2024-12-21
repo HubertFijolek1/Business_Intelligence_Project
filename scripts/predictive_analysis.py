@@ -1,5 +1,5 @@
 import pandas as pd
-from database import get_engine
+from scripts.database import get_engine
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
@@ -29,7 +29,9 @@ def get_monthly_sales_prediction(engine):
     ORDER BY ms.month;
     """
     df = pd.read_sql(query, engine)
-    df['month'] = pd.to_datetime(df['month'])
+    df['month'] = pd.to_datetime(df['month'], errors='coerce', utc=True)
+    df.dropna(subset=['month'], inplace=True)
+    df['month'] = df['month'].dt.tz_convert(None)
     df.sort_values('month', inplace=True)
 
     X = df[['monthly_spend']]
